@@ -1,0 +1,34 @@
+{
+  "name": "nkunzishop",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Barbing",
+    "Salon",
+    "Platform"
+  ],
+  "author": "Yaqub Tawab Olamilekan (Nkunzi)",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/colors": "^1.2.1",
+    "@types/cors": "^2.8.13",
+    "@types/express": "^4.17.17",
+    "@types/mongoose": "^5.11.97",
+    "nodemon": "^3.0.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.1.6"
+  },
+  "dependencies": {
+    "@types/color": "^3.0.3",
+    "colors": "^1.4.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "mongoose": "^7.3.4"
+  }
+}
