@@ -1,22 +1,27 @@
-import express from "express";
+import express , { Express , Request , Response} from "express";
 import dotenv from "dotenv";
 import { Color } from "colors";
 import { connectDb } from "./config/db";
-const app = express();
-const PORT : string | undefined = process.env.PORT;
+import userRoute from "./routes/userRoute";
+import { errorHandler , notFoundMiddleware} from "./middlewares/errorMiddleware";
 dotenv.config();
+const app : Express = express();
+const PORT : string | undefined = process.env.PORT;
+
 
 connectDb();
 
 //middlewares
 app.use(express.json());
 app.use(express.urlencoded({extended:false}));
-
+app.use('/nkunzi/user', userRoute );
+app.use(errorHandler)
+app.use(notFoundMiddleware)
 
 app.listen(PORT , () :void => {
    console.log(`Oya oya i dey on port ${ PORT }`)
 })
-
+   
 
 
 
