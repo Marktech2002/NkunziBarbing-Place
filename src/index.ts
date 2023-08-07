@@ -3,6 +3,8 @@ import dotenv from "dotenv";
 import { Color } from "colors";
 import { connectDb } from "./config/db";
 import userRoute from "./routes/userRoute";
+import subRoute from "./routes/subRoute";
+import planRoute from "./routes/planRoute";
 import { errorHandler , notFoundMiddleware} from "./middlewares/errorMiddleware";
 dotenv.config();
 const app : Express = express();
@@ -14,7 +16,9 @@ connectDb();
 //middlewares
 app.use(express.json());
 app.use(express.urlencoded({extended:false}));
-app.use('/nkunzi/user', userRoute );
+app.use('/nkunzi/user', userRoute);
+app.use('/nkunzi/plan', planRoute);
+app.use('/nkunzi/subscription' , subRoute)
 app.use(errorHandler)
 app.use(notFoundMiddleware)
 

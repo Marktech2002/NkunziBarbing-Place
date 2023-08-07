@@ -13,14 +13,17 @@ const userSchema: Schema<User> = new Schema<User>(
   {
     firstName: {
       type: String,
+      trim : true ,
       required: [true, "Please enter your firstName"],
     },
     secondName: {
       type: String,
+      trim : true ,
       required: [true, "Please enter your secondName"],
     },
     email: {
       type: String,
+      trim : true ,
       required: [true, "Please enter your email"],
       validate: {
         validator: function (str: string) {
@@ -33,6 +36,7 @@ const userSchema: Schema<User> = new Schema<User>(
 
     password: {
       type: String,
+      trim : true ,
       required: [true, "Please add a password "],
     },
     isAdmin: {
