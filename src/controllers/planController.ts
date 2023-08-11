@@ -92,29 +92,33 @@ export const createPlan = async (req: Request, res: Response, next: any) => {
  * @returns Response
  */
 
-export const getPlans = async (req: Request, res: Response) => {
-  const options = {
-    url: "https://api.paystack.co/plan",
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${process.env.SECRET_KEY}`,
-      "content-type": "application/json",
-      "cache-control": "no-cache",
-    },
-  };
-  request(options, async function async(error, body) {
-    if (error) {
-      return res.status(400).json({
-        msg: `${error.message}`,
-        status: "invalid",
+export const getPlans = async (req: Request, res: Response , next : any) => {
+  try {
+    const options = {
+      url: "https://api.paystack.co/plan",
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${process.env.SECRET_KEY}`,
+        "content-type": "application/json",
+        "cache-control": "no-cache",
+      },
+    };
+    request(options, async function async(error, body) {
+      if (error) {
+        return res.status(400).json({
+          msg: `${error.message}`,
+          status: "invalid",
+        });
+      }
+      const response = JSON.parse(body.body);
+      res.status(200).json({
+        success: true,
+        message: "List of all Plans",
+        data: response.data,
       });
-    }
-    const response = JSON.parse(body.body);
-    res.status(200).json({
-      success: true,
-      message: "List of all Plans",
-      data: response.data,
+      //  console.log(response)
     });
-    //  console.log(response)
-  });
+  } catch (error) {
+     next(error);
+  }
 };

@@ -6,7 +6,7 @@ interface DynamicEmailOptions {
   userEmail: string;
   dynamicName: string;
   dynamicIntro: string;
-  date: Date;
+  date: Date ;
 }
 /**
  * Send Email
@@ -22,7 +22,7 @@ export const sFromGmail = async (
   next: any,
   options: DynamicEmailOptions
 ) => {
-  const { userEmail, dynamicName, dynamicIntro, date } = options;
+  const { userEmail, dynamicName, date } = options;
   let config = {
     service: "gmail",
     auth: {
@@ -42,12 +42,12 @@ export const sFromGmail = async (
   let response = {
     body: {
       name: `Hi ${dynamicName}`,
-      intro: dynamicIntro,
+      intro: `Congratulations! Your registration was successful`,
       action: {
-        instructions: ` An appointment was scheduled to hold on ${date} by one of our prestige customer`,
+        instructions: `We are thrilled to have on board comrade . GAZA`,
         button: {
           color: "#22BC66", // Optional action button color
-          text: "New Appointment",
+          text: "Welcome!!!",
           link: "",
         },
       },
@@ -60,7 +60,7 @@ export const sFromGmail = async (
   const message = {
     from: process.env.EMAIL,
     to: userEmail,
-    subject: "New Appointment",
+    subject: "Welcome ",
     html: mail,
   };
 

@@ -21,7 +21,6 @@ const subscriptionSchema = new Schema<subscription>(
     },
     plan: {
       type: String,
-      enum: Object.values(planType),
       required: true,
     },
    

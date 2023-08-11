@@ -1,6 +1,7 @@
 import Jwt from "jsonwebtoken";
 import express, { Request, Response, NextFunction } from "express";
 import { UserModel } from "../models/userModel";
+import { SubscriptionModel } from "../models/subscriptionModel";
 
 /**
  * ? Authotization Middlware
@@ -10,7 +11,6 @@ import { UserModel } from "../models/userModel";
  * @param next
  * @returns Response
  */
-
 export const protectUser = async (
   req: Request,
   res: Response,
@@ -47,14 +47,23 @@ export const protectUser = async (
   }
 };
 
+/**
+ * ? Authotization admin Middlware
+ * * @desc protect Admin Routes
+ * * @param req
+ * * @param res
+ * @param next
+ * @returns Response
+ */
 export const adminAuthorize = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   const { isAdmin } = req.body.user;
+  const user = await UserModel.findById(req.body.user.id);
   try {
-    if (isAdmin) {
+    if (user.isAdmin) {
       console.log("Admin ti wa ");
       next();
     } else {
@@ -68,5 +77,37 @@ export const adminAuthorize = async (
       success: false,
       message: "Boss you are not permitted",
     });
+  }
+};
+
+/**
+ * ? Protect Appointment route
+ * * @desc check subscription status
+ * * @param req
+ * * @param res
+ * @param next
+ * @returns Response
+ */
+export const activeSubscriber = async (
+  req: Request,
+  res: Response,
+  next: any
+) => {
+  try {
+    const user = await UserModel.findById(req.body.user.id);
+    if (user) {
+      const subscription = await SubscriptionModel.findOne({ userId: user.id });
+      if (subscription && subscription.status === "active") {
+        next();
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: "You dont have an active subscription 😓 ",
+        });
+      }
+    }
+  } catch (error) {
+    console.error(error);
+    next(error);
   }
 };

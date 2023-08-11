@@ -17,9 +17,6 @@ import request from 'request';
     request.post(options , callback)
   };
 
-  // *
- export const verifyPayment = (ref: string, mycallback: Function) => {
 
- };
 
 

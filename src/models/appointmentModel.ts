@@ -2,6 +2,7 @@ import mongoose, { Schema, Document, Types } from "mongoose";
 
 export interface appointment extends Document {
   userId: Types.ObjectId;
+  desc : string ;
   appointmentDate: Date;
 }
 
@@ -12,6 +13,10 @@ const appointmentSchema = new Schema<appointment>(
       ref: "User",
       required: true,
     },
+    desc : {
+        type : String ,
+        required : true ,
+    },
     appointmentDate: {
       type: Date,
       required: true,
@@ -21,3 +26,5 @@ const appointmentSchema = new Schema<appointment>(
     timestamps: true,
   }
 );
+
+export const appointmentModel = mongoose.model<appointment>("Appointment", appointmentSchema);

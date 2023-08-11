@@ -14,7 +14,7 @@ import { User, UserModel } from "../models/userModel";
  */
 
 export const registerUser = async (req: Request, res: Response) => {
-  const { firstName, secondName, email, password } = req.body;
+  const { firstName, secondName, email, password ,isAdmin } = req.body;
   if (!firstName || !secondName || !email || !password) {
     res.status(400).json({
       success: false,
@@ -47,14 +47,16 @@ export const registerUser = async (req: Request, res: Response) => {
       firstName,
       secondName,
       email,
+      isAdmin,
       password: hashedPassword,
     });
 
     if (user) {
       return res.status(201).json({
+        status : true ,
         message: "User created successfully",
         _id: user.id,
-        name: `${user.firstName}${user.secondName}`,
+        name: `${user.firstName} ${user.secondName}`,
         email: user.email,
         token: generateToken(user._id),
       });
