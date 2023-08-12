@@ -2,11 +2,9 @@ import { Response, Request } from "express";
 import nodemailer from "nodemailer";
 import Mailgen from "mailgen";
 
-interface DynamicEmailOptions {
+export interface EmailOptions {
   userEmail: string;
   dynamicName: string;
-  dynamicIntro: string;
-  date: Date ;
 }
 /**
  * Send Email
@@ -16,13 +14,13 @@ interface DynamicEmailOptions {
  * @param res 
  * @returns Response
  */
-export const sFromGmail = async (
+export const registeredMail = async (
   req: Request,
   res: Response,
   next: any,
-  options: DynamicEmailOptions
+  options: EmailOptions
 ) => {
-  const { userEmail, dynamicName, date } = options;
+  const { userEmail, dynamicName } = options;
   let config = {
     service: "gmail",
     auth: {
@@ -48,7 +46,7 @@ export const sFromGmail = async (
         button: {
           color: "#22BC66", // Optional action button color
           text: "Welcome!!!",
-          link: "",
+          link: "https://nkunzi.co/",
         },
       },
       outro:
@@ -67,10 +65,7 @@ export const sFromGmail = async (
   transporter
     .sendMail(message)
     .then(() => {
-      return res.status(201).json({
-        success: true,
-        message: "Email Successsfully sent",
-      });
+      console.log("Enmail sent sucessfully");
     })
     .catch((error) => {
       next(error);

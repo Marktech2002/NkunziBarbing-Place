@@ -23,10 +23,10 @@ const subscriptionSchema = new Schema<subscription>(
       type: String,
       required: true,
     },
-   
+
     reference: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
 
     status: {

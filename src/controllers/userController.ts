@@ -2,6 +2,7 @@ import { Response, Request } from "express";
 import Jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { User, UserModel } from "../models/userModel";
+import { registeredMail, EmailOptions } from "../helpers/registerMail";
 
 /**
  * Register new user
@@ -13,8 +14,8 @@ import { User, UserModel } from "../models/userModel";
  * @returns Response
  */
 
-export const registerUser = async (req: Request, res: Response) => {
-  const { firstName, secondName, email, password ,isAdmin } = req.body;
+export const registerUser = async (req: Request, res: Response, next: any) => {
+  const { firstName, secondName, email, password, isAdmin } = req.body;
   if (!firstName || !secondName || !email || !password) {
     res.status(400).json({
       success: false,
@@ -41,7 +42,6 @@ export const registerUser = async (req: Request, res: Response) => {
   //hash passwords
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
-
   try {
     const user = await UserModel.create({
       firstName,
@@ -52,8 +52,14 @@ export const registerUser = async (req: Request, res: Response) => {
     });
 
     if (user) {
+      
+      const options: EmailOptions = {
+        userEmail: email,
+        dynamicName: firstName,
+      };
+      await registeredMail(req, res, next, options); // send registration success email
       return res.status(201).json({
-        status : true ,
+        status: true,
         message: "User created successfully",
         _id: user.id,
         name: `${user.firstName} ${user.secondName}`,
@@ -80,7 +86,7 @@ export const registerUser = async (req: Request, res: Response) => {
  * @returns Response
  */
 export const loginUser = async (req: Request, res: Response) => {
-  const { email, password }  = req.body;
+  const { email, password } = req.body;
   if (!email || !password) {
     res.status(400).json({
       success: false,
@@ -171,13 +177,11 @@ export const updateUser = async (req: Request, res: Response) => {
     if (email) {
       const emailExists = await UserModel.findOne({ email });
       if (emailExists) {
-        return res
-          .status(400)
-          .json({
-            success: false,
-            message: "Email already in use",
-            status: "Invalid",
-          });
+        return res.status(400).json({
+          success: false,
+          message: "Email already in use",
+          status: "Invalid",
+        });
       }
       existingUser.email = email;
     }

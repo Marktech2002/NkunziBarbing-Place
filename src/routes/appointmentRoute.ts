@@ -3,6 +3,7 @@ import {
   createAppointment,
   getAppointments,
   deleteAppointment,
+  getAppointmentId,
   updateAppointment,
 } from "../controllers/appointmentController";
 import {
@@ -14,8 +15,19 @@ import {
 const router: Router = express.Router();
 
 router.post("/create", protectUser, activeSubscriber, createAppointment);
-router.get("/all", getAppointments);
-router.delete("/:id", deleteAppointment);
-router.put("/update/:id", updateAppointment);
+router.get("/all", protectUser, adminAuthorize, getAppointments);
+router.get("/:appointmentId", protectUser, adminAuthorize, getAppointmentId);
+router.delete(
+  "/:appointmentId",
+  protectUser,
+  adminAuthorize,
+  deleteAppointment
+);
+router.put(
+  "/update/:appointmentId",
+  protectUser,
+  activeSubscriber,
+  updateAppointment
+);
 
 export default router;

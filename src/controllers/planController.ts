@@ -78,7 +78,6 @@ export const createPlan = async (req: Request, res: Response, next: any) => {
         response,
       },
     });
-    // console.log(plan)
   });
 };
 
@@ -91,8 +90,7 @@ export const createPlan = async (req: Request, res: Response, next: any) => {
  * @param res 
  * @returns Response
  */
-
-export const getPlans = async (req: Request, res: Response , next : any) => {
+export const getPlans = async (req: Request, res: Response, next: any) => {
   try {
     const options = {
       url: "https://api.paystack.co/plan",
@@ -116,9 +114,8 @@ export const getPlans = async (req: Request, res: Response , next : any) => {
         message: "List of all Plans",
         data: response.data,
       });
-      //  console.log(response)
     });
   } catch (error) {
-     next(error);
+    next(error);
   }
 };

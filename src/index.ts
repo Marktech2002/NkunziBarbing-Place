@@ -1,6 +1,5 @@
 import express , { Express , Request , Response} from "express";
 import dotenv from "dotenv";
-import { Color } from "colors";
 import { connectDb } from "./config/db";
 import userRoute from "./routes/userRoute";
 import subRoute from "./routes/subRoute";
@@ -11,7 +10,7 @@ dotenv.config();
 const app : Express = express();
 const PORT : string | undefined = process.env.PORT;
 
-
+//conect db
 connectDb();
 
 //middlewares
@@ -28,11 +27,3 @@ app.listen(PORT , () :void => {
    console.log(`Oya oya i dey on port ${ PORT }`)
 })
    
-
-
-
-
-
-/*
-https://medium.com/@chiragmehta900/how-to-send-mail-in-node-js-with-nodemailer-in-typescript-889cc46d1437 
-*/

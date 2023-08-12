@@ -6,6 +6,12 @@ import {
   appointmentMail,
   DynamicEmailOptions,
 } from "../helpers/appointmentMail";
+
+
+interface Iapp {
+  appointmentDate: string;
+  desc: string;
+}
 /**
  * Create an appointment 
  * @desc new appointment
@@ -15,10 +21,6 @@ import {
  * @param res 
  * @returns Response
  */
-interface Iapp {
-  appointmentDate: string;
-  desc: string;
-}
 export const createAppointment = async (
   req: Request,
   res: Response,
@@ -52,6 +54,15 @@ export const createAppointment = async (
   const parsedDate = new Date(appointmentDate);
   //create appointment
   try {
+    // Check if the user already has an appointment
+    const existingAppointment = await appointmentModel.findOne({ id });
+    if (existingAppointment) {
+      return res.status(400).json({
+        success: false,
+        message: "User already has an appointment",
+        status: "Invalid",
+      });
+    }
     const appointment = new appointmentModel({
       userId: id,
       desc,
@@ -90,7 +101,70 @@ export const getAppointments = async (
   req: Request,
   res: Response,
   next: any
-) => {};
+) => {
+  try {
+    const appointment = await appointmentModel.find({}).sort({
+      date: -1,
+    });
+    if (appointment.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Oops no active appointments",
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      message: "Appointment fetchecd succesfully",
+      data: appointment,
+    });
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+};
+
+/**
+ * Get an appointment 
+ * @desc Fetched by Id appointment
+   @route GET nkunzi/appointment/:apppointId
+   @access Private
+ * @param req 
+ * @param res 
+ * @returns Response
+ */
+export const getAppointmentId = async (
+  req: Request,
+  res: Response,
+  next: any
+) => {
+  const id = req.params.appointmentId;
+  if (!id) {
+    return res.status(400).json({
+      success: false,
+      message: "No id in request Body",
+      status: "Invalid",
+    });
+  }
+
+  try {
+    const appointment = await appointmentModel.findById(id);
+    if (appointment) {
+      return res.status(200).json({
+        success: true,
+        message: "Appointment fetched successfully",
+        data: appointment,
+      });
+    } else {
+      return res.status(404).json({
+        success: false,
+        message: "Appointment does not exist",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+};
 
 /**
  * Delete an appointment
@@ -105,8 +179,39 @@ export const deleteAppointment = async (
   req: Request,
   res: Response,
   next: any
-) => {};
+) => {
+  const id = req.params.appointmentId;
+  if (!id) {
+    return res.status(400).json({
+      success: false,
+      message: "No id in request parameter",
+      status: "Invalid",
+    });
+  }
+  try {
+    const appointment = await appointmentModel.findByIdAndDelete(id);
+    if (appointment) {
+      return res.status(200).json({
+        success: true,
+        message: "Id successfully deleted",
+        data: appointment,
+      });
+    } else {
+      return res.status(404).json({
+        success: false,
+        message: "Appointment does not exist",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+};
 
+interface IAppointment {
+  desc?: string;
+  appointmentDate?: string;
+}
 /**
  * Reschedule an appointment or Update
  * @desc  update an appointment
@@ -120,4 +225,47 @@ export const updateAppointment = async (
   req: Request,
   res: Response,
   next: any
-) => {};
+) => {
+  const { id } = req.body.user;
+  const appointmentId = req.params.appointmentId;
+  //params id
+  if (!id || !appointmentId) {
+    return res.status(400).json({
+      success: false,
+      message: "Missing credentials Id or params",
+      status: "Invalid",
+    });
+  }
+  try {
+    const { desc, appointmentDate } = req.body;
+    const updatedfields: IAppointment = {};
+    if (desc) {
+      updatedfields.desc = desc;
+    }
+    if (appointmentDate) {
+      updatedfields.appointmentDate = appointmentDate;
+    }
+
+    const appointment = await appointmentModel.findOneAndUpdate(
+      {
+        userId: id,
+      },
+      updatedfields,
+      { new: true }
+    );
+    if (!appointment) {
+      return res.status(404).json({
+        success: false,
+        message: "Appointment not found",
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      message: "Appointment updated successfully",
+      data: appointment,
+    });
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+};

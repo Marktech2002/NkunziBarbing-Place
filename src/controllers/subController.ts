@@ -177,7 +177,6 @@ export const allSubscriptions = async (
         message: "List of all Subscriptions",
         data: response.data,
       });
-      //  console.log(response)
     });
   } catch (error) {
     next(error);
