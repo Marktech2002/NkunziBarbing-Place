@@ -1,12 +1,11 @@
 import { Response, Request } from "express";
-import Jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
 import request from "request";
 import { User, UserModel } from "../models/userModel";
 import { planModel } from "../models/planModel";
 import { subscribeUser } from "../helpers/createsubscription";
-import { SubscriptionModel } from "../models/subscriptionModel";
-import { initializePayment } from "../services/paymentgateway";
+import { deleteSubSchema, idValidationSchema } from "../validation/subvalid";
+import { logger } from "../util/logger";
+
 /**
  * Create a subscription
  * @desc new subscription 
@@ -22,7 +21,7 @@ export const createSubscription = async (
   next: any
 ) => {
   const user = await UserModel.findById(req.body.user.id);
-  const { id, email } = user;
+  const { email } = user;
   if (!user) {
     return res.status(404).json({
       success: false,
@@ -78,7 +77,7 @@ export const createSubscription = async (
     });
     //  return res.json(validatePlan)
   } catch (error) {
-    console.log(error);
+    logger.error(error);
     next(error);
   }
 };
@@ -123,16 +122,12 @@ export const verifyPayment = async (req: Request, res: Response, next: any) => {
       const response = JSON.parse(body.body);
       const paymentStatus = response.status;
       // save reference data.customer.email
-      console.log(paymentStatus);
-      console.log(response.data.customer.email);
-      console.log(response.data.reference);
-      console.log(response.data.plan_object.plan_code);
       if (paymentStatus === true) {
         await subscribeUser(res, response);
       }
     });
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     return res.status(500).json({
       success: false,
       message: "An Error Occured",
@@ -179,6 +174,7 @@ export const allSubscriptions = async (
       });
     });
   } catch (error) {
+    logger.error(error)
     next(error);
   }
 };
@@ -194,10 +190,12 @@ export const allSubscriptions = async (
  */
 export const getSubscriptionsById = async (req: Request, res: Response) => {
   const Id = req.params.subscriptionId;
-  if (!Id) {
-    return res.status(404).json({
+  const { error } = idValidationSchema.validate({ Id })
+  if (error) {
+    return res.status(400).json({
       success: false,
-      message: "Empty Params",
+      message: error.details[0].message.replace(/"|'/g, ""),
+      status: "Invalid",
     });
   }
   try {
@@ -226,7 +224,7 @@ export const getSubscriptionsById = async (req: Request, res: Response) => {
       });
     });
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     return res.status(500).json({
       success: false,
       message: "An Error Occured",
@@ -246,10 +244,12 @@ export const getSubscriptionsById = async (req: Request, res: Response) => {
  */
 export const deleteSubscription = async (req: Request, res: Response) => {
   const { sub_code, emailToken } = req.body;
-  if (!sub_code || !emailToken) {
-    return res.status(404).json({
+  const { error } = deleteSubSchema.validate(req.body);
+  if (error) {
+    return res.status(400).json({
       success: false,
-      message: "Invalid or missing credentials",
+      message: error.details[0].message.replace(/"|'/g, ""),
+      status: "Invalid",
     });
   }
   try {
@@ -277,12 +277,12 @@ export const deleteSubscription = async (req: Request, res: Response) => {
       const response = JSON.parse(body.body);
       return res.status(200).json({
         success: true,
-        message: "Subscription Disabled succefully",
+        message: "Subscription Disabled successfully",
         date: response,
       });
     });
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     return res.status(500).json({
       success: false,
       message: "An Error Occured",

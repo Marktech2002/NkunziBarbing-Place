@@ -1,17 +1,13 @@
 import { Response, Request } from "express";
 import { UserModel } from "../models/userModel";
-import { SubscriptionModel } from "../models/subscriptionModel";
+import { appointmentValidationSchema } from "../validation/appointmentvalid";
 import { appointmentModel } from "../models/appointmentModel";
 import {
   appointmentMail,
   DynamicEmailOptions,
 } from "../helpers/appointmentMail";
+import { logger } from "../util/logger";
 
-
-interface Iapp {
-  appointmentDate: string;
-  desc: string;
-}
 /**
  * Create an appointment 
  * @desc new appointment
@@ -34,11 +30,12 @@ export const createAppointment = async (
       status: "Invalid",
     });
   }
-  const { appointmentDate, desc }: Iapp = req.body;
-  if (!appointmentDate || !desc) {
+  const { appointmentDate, desc } = req.body;
+   const { error } = appointmentValidationSchema.validate(req.body);
+   if (error) {
     return res.status(400).json({
       success: false,
-      message: "No data or desc specified",
+      message: error.details[0].message.replace(/"|'/g, ""),
       status: "Invalid",
     });
   }
@@ -83,7 +80,7 @@ export const createAppointment = async (
       data: appointment,
     });
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     next(error);
   }
 };
@@ -118,7 +115,7 @@ export const getAppointments = async (
       data: appointment,
     });
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     next(error);
   }
 };
@@ -161,7 +158,7 @@ export const getAppointmentId = async (
       });
     }
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     next(error);
   }
 };
@@ -203,7 +200,7 @@ export const deleteAppointment = async (
       });
     }
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     next(error);
   }
 };
@@ -265,7 +262,7 @@ export const updateAppointment = async (
       data: appointment,
     });
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     next(error);
   }
 };

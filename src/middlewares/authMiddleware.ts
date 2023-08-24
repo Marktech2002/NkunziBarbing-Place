@@ -2,6 +2,7 @@ import Jwt from "jsonwebtoken";
 import express, { Request, Response, NextFunction } from "express";
 import { UserModel } from "../models/userModel";
 import { SubscriptionModel } from "../models/subscriptionModel";
+import { logger } from "../util/logger";
 
 /**
  * ? Authotization Middlware
@@ -29,7 +30,7 @@ export const protectUser = async (
       //   console.log(req.body.user);
       next();
     } catch (error) {
-      console.log(error);
+      logger.error(error);
       return res.status(401).json({
         success: false,
         message: "Not authorized",
@@ -64,7 +65,7 @@ export const adminAuthorize = async (
   const user = await UserModel.findById(req.body.user.id);
   try {
     if (user.isAdmin) {
-      console.log("Admin ti wa ");
+      logger.info("Admin ti wa ");
       next();
     } else {
       return res.status(403).json({
@@ -107,7 +108,7 @@ export const activeSubscriber = async (
       }
     }
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     next(error);
   }
 };

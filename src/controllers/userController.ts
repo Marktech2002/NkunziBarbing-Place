@@ -2,7 +2,14 @@ import { Response, Request } from "express";
 import Jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { User, UserModel } from "../models/userModel";
+import {
+  signUpschema,
+  loginSchema,
+  getUserSchema,
+  UpdateUserSchema,
+} from "../validation/uservalid";
 import { registeredMail, EmailOptions } from "../helpers/registerMail";
+import { logger } from "../util/logger";
 
 /**
  * Register new user
@@ -15,21 +22,16 @@ import { registeredMail, EmailOptions } from "../helpers/registerMail";
  */
 
 export const registerUser = async (req: Request, res: Response, next: any) => {
-  const { firstName, secondName, email, password, isAdmin } = req.body;
-  if (!firstName || !secondName || !email || !password) {
-    res.status(400).json({
+  const { firstName, secondName, email, password } = req.body;
+  const { error } = signUpschema.validate(req.body);
+  if (error) {
+    return res.status(400).json({
       success: false,
-      message: "Fill in all fields",
+      message: error.details[0].message.replace(/"|'/g, ""),
       status: "Invalid",
     });
-    if (password < 6) {
-      res.status(400).json({
-        success: false,
-        message: "Password need to be greater than 6",
-        status: "Invalid",
-      });
-    }
   }
+
   const userExits = await UserModel.findOne({ email });
   if (userExits) {
     return res.status(400).json({
@@ -47,12 +49,10 @@ export const registerUser = async (req: Request, res: Response, next: any) => {
       firstName,
       secondName,
       email,
-      isAdmin,
       password: hashedPassword,
     });
 
     if (user) {
-      
       const options: EmailOptions = {
         userEmail: email,
         dynamicName: firstName,
@@ -68,7 +68,7 @@ export const registerUser = async (req: Request, res: Response, next: any) => {
       });
     }
   } catch (error) {
-    console.error("Error creating user:", error);
+    logger.error(error);
     return res.status(500).json({
       success: false,
       message: "Failed to create user",
@@ -87,10 +87,11 @@ export const registerUser = async (req: Request, res: Response, next: any) => {
  */
 export const loginUser = async (req: Request, res: Response) => {
   const { email, password } = req.body;
-  if (!email || !password) {
-    res.status(400).json({
+  const { error } = loginSchema.validate(req.body);
+  if (error) {
+    return res.status(400).json({
       success: false,
-      message: "Fill in all credentials",
+      message: error.details[0].message.replace(/"|'/g, ""),
       status: "Invalid",
     });
   }
@@ -138,7 +139,7 @@ export const getUser = async (req: Request, res: Response) => {
       user,
     });
   } catch (error) {
-    console.log(error);
+    logger.error(error);
     return res.status(500).json({
       err: error,
       message: "Server error",
@@ -159,6 +160,15 @@ export const getUser = async (req: Request, res: Response) => {
 export const updateUser = async (req: Request, res: Response) => {
   const userId = req.params.userId;
   const { firstName, secondName, email } = req.body;
+  const { error } = UpdateUserSchema.validate(req.body);
+  if (error) {
+    return res.status(400).json({
+      success: false,
+      message: error.details[0].message.replace(/"|'/g, ""),
+      status: "Invalid",
+    });
+  }
+
   try {
     const existingUser = await UserModel.findById(userId);
     if (!existingUser) {
@@ -192,7 +202,7 @@ export const updateUser = async (req: Request, res: Response) => {
       user: updatedUser,
     });
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     res.status(500).json({
       success: false,
       message: "Failed to update user",

@@ -1,14 +1,9 @@
 import { Response, Request } from "express";
 import request from "request";
-import nodemailer from "nodemailer";
-import Mailgen from "mailgen";
 import { planModel } from "../models/planModel";
+import { createPlanSchema } from "../validation/planvalid";
+import { logger } from "../util/logger";
 
-export interface IPlan {
-  name: string;
-  interval: string;
-  amount: number;
-}
 
 /**
  * Create a plan
@@ -21,14 +16,16 @@ export interface IPlan {
  */
 
 export const createPlan = async (req: Request, res: Response, next: any) => {
-  const { name, interval, amount }: IPlan = req.body;
-  if (!name || !interval || !amount) {
+  const { name, interval, amount } = req.body;
+  const { error } = createPlanSchema.validate(req.body);
+  if (error) {
     return res.status(400).json({
       success: false,
-      message: "Fill in all details correctly",
+      message: error.details[0].message.replace(/"|'/g, ""),
       status: "Invalid",
     });
   }
+ 
   const options = {
     url: "https://api.paystack.co/plan",
     method: "POST",
@@ -61,9 +58,7 @@ export const createPlan = async (req: Request, res: Response, next: any) => {
         plan_code: response.data.plan_code,
         id: response.data.id,
       });
-      console.log("New Plan created : ", newPlan);
     } catch (error) {
-      console.error("Error creating plan:", error);
       res.status(400).json({
         success: false,
         message: "Error Creating Plan ",
@@ -116,6 +111,7 @@ export const getPlans = async (req: Request, res: Response, next: any) => {
       });
     });
   } catch (error) {
+    logger.error(error)
     next(error);
   }
 };
