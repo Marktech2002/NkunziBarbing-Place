@@ -5,6 +5,7 @@ import {
   allSubscriptions,
   getSubscriptionsById,
   deleteSubscription,
+  updateSubscriptionStatus,
 } from "../controllers/subController";
 import { protectUser, adminAuthorize } from "../middlewares/authMiddleware";
 
@@ -18,6 +19,7 @@ router.get(
   adminAuthorize,
   getSubscriptionsById
 );
+router.put("/:subscriptionId" , updateSubscriptionStatus )
 router.post("/disable", protectUser, adminAuthorize, deleteSubscription);
 
 export default router;

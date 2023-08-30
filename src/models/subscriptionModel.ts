@@ -10,6 +10,7 @@ export interface subscription extends Document {
   plan: planType;
   status: "active" | "inactive" | "canceled";
   reference: string;
+  createdAt: Date; // Make sure createdAt is included
 }
 
 const subscriptionSchema = new Schema<subscription>(

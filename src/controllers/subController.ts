@@ -5,6 +5,7 @@ import { planModel } from "../models/planModel";
 import { subscribeUser } from "../helpers/createsubscription";
 import { deleteSubSchema, idValidationSchema } from "../validation/subvalid";
 import { logger } from "../util/logger";
+import { SubscriptionModel } from "../models/subscriptionModel";
 
 /**
  * Create a subscription
@@ -174,7 +175,7 @@ export const allSubscriptions = async (
       });
     });
   } catch (error) {
-    logger.error(error)
+    logger.error(error);
     next(error);
   }
 };
@@ -190,7 +191,7 @@ export const allSubscriptions = async (
  */
 export const getSubscriptionsById = async (req: Request, res: Response) => {
   const Id = req.params.subscriptionId;
-  const { error } = idValidationSchema.validate({ Id })
+  const { error } = idValidationSchema.validate({ Id });
   if (error) {
     return res.status(400).json({
       success: false,
@@ -232,6 +233,51 @@ export const getSubscriptionsById = async (req: Request, res: Response) => {
     });
   }
 };
+/**
+ * Update subscription
+ * @desc   Update a subscription status 
+   @route PUT nkunzi/subscription/:subscriptionId
+   @access Private
+ * @param req 
+ * @param res 
+ * @returns Response
+ */
+export const updateSubscriptionStatus = async (
+  req: Request,
+  res: Response,
+  next: any
+) => {
+  const id = req.params.subscriptionId;
+  const { error } = idValidationSchema.validate({ id });
+  if (error) {
+    return res.status(400).json({
+      success: false,
+      message: error.details[0].message.replace(/"|'/g, ""),
+      status: "Invalid",
+    });
+  }
+  try {
+    const subscription = await SubscriptionModel.findById(id);
+    if (subscription) {
+      subscription.status = "inactive";
+      await subscription.save();
+      return res.status(201).json({
+        success: true, 
+        message: "Subscription updated successfully",
+        data: subscription,
+      });
+    } else {
+      return res.status(404).json({
+        success: false,
+        message: "Subscription not found",
+        status: "Not Found",
+      });
+    }
+  } catch (error) {
+    next(error);
+    logger.error(error);
+  }
+};
 
 /**
  * Delete a subscription
@@ -242,6 +288,7 @@ export const getSubscriptionsById = async (req: Request, res: Response) => {
  * @param res 
  * @returns Response
  */
+
 export const deleteSubscription = async (req: Request, res: Response) => {
   const { sub_code, emailToken } = req.body;
   const { error } = deleteSubSchema.validate(req.body);

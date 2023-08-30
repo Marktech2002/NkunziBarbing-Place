@@ -6,12 +6,15 @@ import subRoute from "./routes/subRoute";
 import planRoute from "./routes/planRoute";
 import appointmentRoute from "./routes/appointmentRoute";
 import { errorHandler , notFoundMiddleware} from "./middlewares/errorMiddleware";
+import { updateSubscriptionStatus } from "./util/cronjob";
 dotenv.config();
 const app : Express = express();
 const PORT : string | undefined = process.env.PORT;
 
 //conect db
 connectDb();
+
+updateSubscriptionStatus()
 
 //middlewares
 app.use(express.json());
