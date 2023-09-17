@@ -22,6 +22,7 @@ import { logger } from "../util/logger";
  */
 
 export const registerUser = async (req: Request, res: Response, next: any) => {
+  logger.info("calling registerUser");
   const { firstName, secondName, email, password } = req.body;
   const { error } = signUpschema.validate(req.body);
   if (error) {
@@ -31,6 +32,7 @@ export const registerUser = async (req: Request, res: Response, next: any) => {
       status: "Invalid",
     });
   }
+  logger.info("validation passed..");
 
   const userExits = await UserModel.findOne({ email });
   if (userExits) {
@@ -51,15 +53,17 @@ export const registerUser = async (req: Request, res: Response, next: any) => {
       email,
       password: hashedPassword,
     });
-
+    logger.info("User created..");
     if (user) {
-      const options: EmailOptions = {
-        userEmail: email,
-        dynamicName: firstName,
-      };
-      await registeredMail(req, res, next, options); // send registration success email
+      // const options: EmailOptions = {
+      //   userEmail: email,
+      //   dynamicName: firstName,
+      // };
+      // await registeredMail(req, res, next, options); // send registration success email
+
+      // logger.info("email sent..")
       return res.status(201).json({
-        status: true,
+        success: true,
         message: "User created successfully",
         _id: user.id,
         name: `${user.firstName} ${user.secondName}`,
@@ -123,6 +127,7 @@ export const loginUser = async (req: Request, res: Response) => {
  */
 
 export const getUser = async (req: Request, res: Response) => {
+  logger.info("gettng user ");
   const { id } = req.body.user;
   try {
     const user = await UserModel.findOne({ _id: id });
@@ -222,4 +227,4 @@ const generateToken = (id: string): any => {
   return Jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: "30d",
   });
-};
+}; 

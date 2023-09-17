@@ -1,6 +1,7 @@
 import { Response, Request } from "express";
 import nodemailer from "nodemailer";
 import Mailgen from "mailgen";
+import { logger } from "../util/logger";
 
 export interface EmailOptions {
   userEmail: string;
@@ -53,7 +54,7 @@ export const registeredMail = async (
         "Thanks for choosing Nkunzi Shop , thrilled to have you once again.",
     },
   };
-
+ 
   const mail = MailGenerator.generate(response);
   const message = {
     from: process.env.EMAIL,
@@ -61,13 +62,14 @@ export const registeredMail = async (
     subject: "Welcome ",
     html: mail,
   };
-
+  logger.info("About to send email...")
   transporter
     .sendMail(message)
     .then(() => {
-      console.log("Enmail sent sucessfully");
+      logger.info("Email sent sucessfully");
     })
     .catch((error) => {
+      logger.error(error)
       next(error);
     });
 };
