@@ -55,13 +55,13 @@ export const registerUser = async (req: Request, res: Response, next: any) => {
     });
     logger.info("User created..");
     if (user) {
-      // const options: EmailOptions = {
-      //   userEmail: email,
-      //   dynamicName: firstName,
-      // };
-      // await registeredMail(req, res, next, options); // send registration success email
+       const options: EmailOptions = {
+        userEmail: email,
+       dynamicName: firstName,
+       };
+      await registeredMail(req, res, next, options);
 
-      // logger.info("email sent..")
+       logger.info("email sent..")
       return res.status(201).json({
         success: true,
         message: "User created successfully",
