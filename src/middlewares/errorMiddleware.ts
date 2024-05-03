@@ -10,7 +10,6 @@ export const errorHandler = async (
   res: Response,
   next: NextFunction
 ) => {
-  // console.log("Error caught by the custom error handler:", err);
   const statusCode: number = res.statusCode ? res.statusCode : 500;
   const errorResponse: ErrorResponse = {
     message: err.message , 
@@ -30,10 +29,3 @@ export const notFoundMiddleware = (req: Request, res: Response) => {
     });
 };
 
-
-// app.use((error: unknown, req: Request, res: Response, next: NextFunction) => {
-//    console.log(error)
-//   let errorMessage = “An unknown error occurred” ;
-//   if (error instanceof Error) errorMessage = error.message;
-//   res.status(500).json({ error: errorMessage });
-// });
