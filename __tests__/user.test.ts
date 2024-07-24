@@ -10,7 +10,7 @@ import {
   loginUser,
   getUser,
 } from "../src/controllers/userController";
-import { registeredMail } from "../src/helpers/registerMail";
+
 
 /**
  * @desc test for registering User with valid credentails
@@ -233,9 +233,10 @@ describe("PUT /nkunzi/user/update/:userId", () => {
     mockingoose(UserModel).toReturn(expectedResponse, "updateMany");
     return UserModel.updateMany(req.body) // this won't really change anything
       .where({ _id: "64c7ef18ac5ed8960e0da291" })
-      .then((user : any) => {
-        console.log(user)
-        expect(JSON.parse(JSON.stringify(user))).toMatchObject(expectedResponse);
+      .then((user: any) => {
+        expect(JSON.parse(JSON.stringify(user))).toMatchObject(
+          expectedResponse
+        );
       });
   });
 });

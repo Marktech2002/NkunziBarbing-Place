@@ -1,11 +1,13 @@
 import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
+import cors from "cors";
 import { connectDb } from "./config/db";
 import { connTestDb } from "./config/testdb";
 import userRoute from "./routes/userRoute";
 import subRoute from "./routes/subRoute";
 import planRoute from "./routes/planRoute";
 import appointmentRoute from "./routes/appointmentRoute";
+import { corOptions } from "./util/cors";
 import {
   errorHandler,
   notFoundMiddleware,
@@ -15,10 +17,11 @@ const app: Express = express();
 
 
 // test db
-connTestDb();
+connectDb()
 //middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(cors(corOptions))
 app.use("/nkunzi/user", userRoute);
 app.use("/nkunzi/plan", planRoute);
 app.use("/nkunzi/subscription", subRoute);

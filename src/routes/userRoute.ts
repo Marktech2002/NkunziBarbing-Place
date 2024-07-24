@@ -1,5 +1,4 @@
 import express, { Router } from "express";
-import { Request, Response } from "express";
 import {
   registerUser,
   loginUser,
@@ -15,3 +14,4 @@ router.get("/me", protectUser, adminAuthorize, getUser);
 router.put("/update/:userId", updateUser);
 
 export default router;
+
